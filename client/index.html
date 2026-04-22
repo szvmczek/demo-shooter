@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Shooter 3D</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <!-- Three.js canvas attaches here -->
+    <div id="game-container"></div>
+
+    <!-- HUD overlay -->
+    <div id="hud" class="hidden">
+        <div id="crosshair"></div>
+
+        <div id="hp-container">
+            <div class="label">HP</div>
+            <div id="hp-bar"><div id="hp-fill"></div><span id="hp-text">100</span></div>
+        </div>
+
+        <div id="weapon-container">
+            <div id="weapon-name">PISTOL</div>
+            <div id="ammo-text">12 / 12</div>
+        </div>
+
+        <div id="kill-feed"></div>
+
+        <canvas id="minimap" width="180" height="180"></canvas>
+
+        <div id="leaderboard">
+            <div class="lb-title">LEADERBOARD</div>
+            <table id="lb-table">
+                <thead><tr><th>Player</th><th>K</th><th>D</th></tr></thead>
+                <tbody id="lb-body"></tbody>
+            </table>
+        </div>
+
+        <div id="hint" class="hidden">Press <b>E</b> to pick up</div>
+    </div>
+
+    <!-- Death overlay -->
+    <div id="death-overlay" class="hidden">
+        <div class="death-text">ELIMINATED</div>
+        <div id="death-timer">Respawn in 5...</div>
+    </div>
+
+    <!-- Start screen -->
+    <div id="start-screen">
+        <div class="start-card">
+            <h1>SHOOTER 3D</h1>
+            <p class="subtitle">Multiplayer 3D Arena · Three.js</p>
+
+            <label for="nickname">Nickname</label>
+            <input id="nickname" type="text" maxlength="16" placeholder="Player" value="" />
+
+            <div class="skin-label">Choose your color</div>
+            <div id="skin-picker">
+                <div class="skin" data-color="#ff4444" style="background:#ff4444"></div>
+                <div class="skin" data-color="#44ff44" style="background:#44ff44"></div>
+                <div class="skin" data-color="#4488ff" style="background:#4488ff"></div>
+                <div class="skin" data-color="#ffff44" style="background:#ffff44"></div>
+                <div class="skin" data-color="#ff44ff" style="background:#ff44ff"></div>
+                <div class="skin" data-color="#44ffff" style="background:#44ffff"></div>
+                <div class="skin" data-color="#ff8844" style="background:#ff8844"></div>
+                <div class="skin" data-color="#ffffff" style="background:#ffffff"></div>
+            </div>
+
+            <label for="server-url">Server</label>
+            <input id="server-url" type="text" placeholder="auto (same origin)" />
+
+            <button id="play-btn">PLAY</button>
+
+            <div class="controls-help">
+                <div><b>WASD</b> move · <b>Mouse</b> aim · <b>LMB</b> shoot</div>
+                <div><b>E</b> pickup · <b>Space</b> jump · <b>Shift</b> sprint</div>
+                <div><b>Esc</b> release mouse</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="connection-status"></div>
+
+    <!-- Libraries from CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+
+    <!-- Game -->
+    <script src="game.js"></script>
+</body>
+</html>
