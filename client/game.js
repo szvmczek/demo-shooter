@@ -12,8 +12,9 @@ const CFG = {
     jumpVel: 7,
     gravity: 20,
     mouseSensitivity: 0.0025,
-    cameraDistance: 5,
-    cameraHeight: 2.2,
+    cameraDistance: 2.5,
+    cameraHeight: 1.9,
+    cameraRightOffset: 0.8,
     networkSendRate: 20, // Hz
     interpDelay: 100 // ms — render other players this far in the past
 };
@@ -998,15 +999,17 @@ function updatePickupAnimations(dt) {
 
 function updateCamera(dt) {
     if (!selfModel) return;
-    // TPS: camera follows behind player, rotated by yaw+pitch
+    // Over-the-shoulder TPS: camera sits near the right shoulder and looks forward
+    // from its own position (not from the player), so the shot ray is aligned with
+    // the screen-center crosshair and isn't blocked by the player's own model.
     const dist = CFG.cameraDistance;
     const height = CFG.cameraHeight;
+    const right = CFG.cameraRightOffset;
     const cp = Math.cos(self.pitch), sp = Math.sin(self.pitch);
     const cy = Math.cos(self.yaw),   sy = Math.sin(self.yaw);
 
-    // Offset behind player: forward is -Z in player's local, so behind is +Z local
-    // Rotate that by yaw, and raise by pitch
-    const offset = new THREE.Vector3(0, height + dist * sp, dist * cp);
+    // Local offset: x = shoulder-right, y = head height + pitch lift, z = behind
+    const offset = new THREE.Vector3(right, height + dist * sp, dist * cp);
     // Apply yaw rotation (around world Y)
     const ox =  offset.x * cy + offset.z * sy;
     const oz = -offset.x * sy + offset.z * cy;
@@ -1017,7 +1020,7 @@ function updateCamera(dt) {
         self.pos.z + oz
     );
 
-    // Simple obstacle avoidance: if camera would be inside a wall, bring it closer
+    // Wall avoidance: if camera would end up inside geometry, pull it back toward the head
     const headPos = new THREE.Vector3(self.pos.x, self.pos.y + 1.6, self.pos.z);
     const dir = new THREE.Vector3().subVectors(target, headPos);
     const len = dir.length();
@@ -1027,14 +1030,15 @@ function updateCamera(dt) {
         const t = raySlabAABB(headPos.x, headPos.y, headPos.z, dir.x, dir.y, dir.z, len, o);
         if (t < d) d = t;
     }
-    d = Math.max(0.8, d - 0.3);
+    d = Math.max(0.5, d - 0.2);
     camera.position.copy(headPos).addScaledVector(dir, d);
 
-    // Look-at: a point in front of the player (so crosshair aims at what the ray hits)
+    // Look-at anchored to the camera (not to the player) — ray from camera stays
+    // parallel to player facing, so crosshair == actual shot direction.
     const look = new THREE.Vector3(
-        self.pos.x - Math.sin(self.yaw) * Math.cos(self.pitch) * 20,
-        self.pos.y + 1.6 + Math.sin(self.pitch) * 20,
-        self.pos.z - Math.cos(self.yaw) * Math.cos(self.pitch) * 20
+        camera.position.x - Math.sin(self.yaw) * Math.cos(self.pitch) * 20,
+        camera.position.y + Math.sin(self.pitch) * 20,
+        camera.position.z - Math.cos(self.yaw) * Math.cos(self.pitch) * 20
     );
 
     // Apply recoil kick (upward pitch add)
